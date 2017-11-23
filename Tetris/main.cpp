@@ -1,4 +1,7 @@
 #include "main.h"
+#include "font.h"
+#include "icon.h"
+
 #include <string>
 #include <random>
 #include <unordered_map>
@@ -51,6 +54,7 @@ uniform_int_distribution<int> distRotation(0, 3);
 int WinMain()
 {
 	RenderWindow window(VideoMode((rightBorder + 2) * step, (lowerBorder + 2) * step), "Tetris", Style::Close);
+	window.setIcon(icon.width, icon.height, icon.pixel_data);
 	memset(mainRectGrid, 0, sizeof(mainRectGrid));
 	keyInterval = Time(milliseconds(50));
 	moveInterval = Time(milliseconds(120));
@@ -63,17 +67,17 @@ int WinMain()
 
 	//Text
 	Font font;
-	if (!font.loadFromFile("FreeSans.ttf"))
+	if (!font.loadFromMemory(fontChar, fontChar_size))
 		return EXIT_FAILURE;
 	txtScore = Text("Score", font, 20);
 	txtScore.setPosition(Vector2f(20, step));
 	txtScore.setFillColor(Color::Black);
-	txtGameOver = Text("Game Over\n\nRestart: Esc", font, 30);
+	txtGameOver = Text("Game Over\n\nRestart: Esc", font, 25);
 	txtGameOver.setPosition(Vector2f(70, (lowerBorder - topBorder) / 2 * step));
 	txtGameOver.setFillColor(Color::Red);
 	txtGameOver.setOutlineColor(Color::Yellow);
 	txtGameOver.setOutlineThickness(10);
-	txtInit = Text("Press arrow keys\n        to start", font, 30);
+	txtInit = Text("Press arrow keys\n        to start", font, 25);
 	txtInit.setPosition(Vector2f(40, (lowerBorder - topBorder) / 2 * step));
 	txtInit.setFillColor(Color::Black);
 	txtInit.setOutlineColor(Color::White);

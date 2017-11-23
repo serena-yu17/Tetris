@@ -1,14 +1,19 @@
-﻿  main.cpp
-main.cpp(69): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-main.cpp(85): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-main.cpp(161): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-main.cpp(161): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-main.cpp(168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-main.cpp(310): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-main.cpp(326): warning C4244: 'argument': conversion from 'double' to 'sf::Int32', possible loss of data
-main.cpp(348): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-main.cpp(349): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+﻿  icon.h
+  main.cpp
+c:\onedrive\projects\windows\tetris\tetris\font.h(7604): warning C4838: conversion from 'int' to 'const char' requires a narrowing conversion
+c:\onedrive\projects\windows\tetris\tetris\font.h(7604): warning C4309: 'initializing': truncation of constant value
+main.cpp(73): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(89): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(165): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(172): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(314): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(330): warning C4244: 'argument': conversion from 'double' to 'sf::Int32', possible loss of data
+main.cpp(352): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(353): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Generating code
-  All 708 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  3 of 708 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Tetris.vcxproj -> C:\OneDrive\projects\windows\Tetris\x64\Release\Tetris.exe
