@@ -1,5 +1,6 @@
 ﻿  main.cpp
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(248): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(259): warning C4244: 'argument': conversion from 'double' to 'sf::Int32', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(293): warning C4101: 'shiftLine': unreferenced local variable
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(56): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(62): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(262): warning C4244: 'argument': conversion from 'double' to 'sf::Int32', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(272): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
   Tetris.vcxproj -> C:\OneDrive\projects\windows\Tetris\x64\Debug\Tetris.exe
