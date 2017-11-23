@@ -1,8 +1,11 @@
 ﻿  main.cpp
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(63): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
 c:\onedrive\projects\windows\tetris\tetris\main.cpp(69): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(141): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(141): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(148): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(323): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(85): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(161): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(161): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(310): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(326): warning C4244: 'argument': conversion from 'double' to 'sf::Int32', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(348): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(349): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Tetris.vcxproj -> C:\OneDrive\projects\windows\Tetris\x64\Debug\Tetris.exe

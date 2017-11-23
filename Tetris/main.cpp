@@ -8,28 +8,34 @@
 using namespace sf;
 using namespace std;
 
-const int step = 10;		  // size of each brick
-const int padding = step;
-const int baseMoveInterval = 400;
-const int lowerBorder = 55;
+const int step = 15;		  // size of each brick
+const int padding = step;	  //left padding distance
+const int baseMoveInterval = 120;
+const int lowerBorder = 35;
 const int topBorder = 5;
-const int rightBorder = 27;
+const int rightBorder = 18;
 Time keyInterval, moveInterval, rotateInterval;
 bool rotating = 0;
 unordered_map<int_fast32_t, int> pow2;
 
-
+//Timers
 Clock moveClock, keyClock, rotateClock;
 unordered_set<RectangleShape*> rects;
+
+//grids
 RectangleShape* mainRectGrid[28][56];
-int_fast32_t globalGrid[57];
+int_fast32_t globalGrid[56];
 vector<RectangleShape> lines;
+
+//Score	board
 unsigned long score = 0;
 Text txtScore;
+Text txtGameOver;
+Text txtInit;
 
-//game control
+//game status
 int gameStatus = 0;   //waiting to start -- 0, game on -- 1, game over -- 2 					   		
-Point refreshPoint(rightBorder / 2, topBorder);
+Point refreshPoint(rightBorder / 2 - 3, topBorder);
 Point previewPoint(rightBorder - 5, 0);
 Block preview = Block();
 Block running = Block();
@@ -44,29 +50,39 @@ uniform_int_distribution<int> distRotation(0, 3);
 
 int WinMain()
 {
-	RenderWindow window(VideoMode((rightBorder + 2) * 10, (lowerBorder + 2) * 10), "Tetris");
+	RenderWindow window(VideoMode((rightBorder + 2) * step, (lowerBorder + 2) * step), "Tetris", Style::Close);
 	memset(mainRectGrid, 0, sizeof(mainRectGrid));
-	keyInterval = Time(milliseconds(70));
-	moveInterval = Time(milliseconds(baseMoveInterval));
-	rotateInterval = Time(milliseconds(baseMoveInterval));
+	keyInterval = Time(milliseconds(50));
+	moveInterval = Time(milliseconds(120));
+	rotateInterval = Time(milliseconds(200));
 	drawLines();
 
 	//generate powers of 2
 	for (int i = 0; i < 25; i++)
 		pow2[1 << i] = i;
 
-	//Score
+	//Text
 	Font font;
-	if (!font.loadFromFile("arial.ttf"))
+	if (!font.loadFromFile("FreeSans.ttf"))
 		return EXIT_FAILURE;
 	txtScore = Text("Score", font, 20);
 	txtScore.setPosition(Vector2f(20, step));
 	txtScore.setFillColor(Color::Black);
+	txtGameOver = Text("Game Over\n\nRestart: Esc", font, 30);
+	txtGameOver.setPosition(Vector2f(70, (lowerBorder - topBorder) / 2 * step));
+	txtGameOver.setFillColor(Color::Red);
+	txtGameOver.setOutlineColor(Color::Yellow);
+	txtGameOver.setOutlineThickness(10);
+	txtInit = Text("Press arrow keys\n        to start", font, 30);
+	txtInit.setPosition(Vector2f(40, (lowerBorder - topBorder) / 2 * step));
+	txtInit.setFillColor(Color::Black);
+	txtInit.setOutlineColor(Color::White);
+	txtInit.setOutlineThickness(10);
 
 	//Border
-	RectangleShape border(Vector2f(rightBorder * 10, (lowerBorder - topBorder) * 10));
+	RectangleShape border(Vector2f(rightBorder * step, (lowerBorder - topBorder) * step));
 	border.setFillColor(Color::Transparent);
-	border.setPosition(Vector2f(padding, 60));
+	border.setPosition(Vector2f(padding, (topBorder + 1) *step));
 	border.setOutlineColor(Color::Black);
 	border.setOutlineThickness(2.0);
 
@@ -128,6 +144,10 @@ int WinMain()
 			window.draw(element);
 		for (auto element : rects)
 			window.draw(*element);
+		if (gameStatus == 3)
+			window.draw(txtGameOver);
+		else if (gameStatus == 0)
+			window.draw(txtInit);
 		window.display();
 	}
 	return 0;
@@ -135,18 +155,18 @@ int WinMain()
 
 void drawLines()
 {
-	for (int y = (topBorder + 1) * 10; y < (lowerBorder + 1) * 10; y += 10)
+	for (int y = (topBorder + 1) * step; y < (lowerBorder + 1) * step; y += step)
 	{
-		RectangleShape line = RectangleShape(Vector2f(rightBorder * 10, 1));
+		RectangleShape line = RectangleShape(Vector2f(rightBorder * step, 1));
 		line.setPosition(Vector2f(padding, y));
-		line.setFillColor(Color(0, 0, 0, 10));
+		line.setFillColor(Color(0, 0, 0, step));
 		lines.push_back(line);
 	}
-	for (int x = padding; x < rightBorder * 10 + padding; x += 10)
+	for (int x = padding; x < rightBorder * step + padding; x += step)
 	{
-		RectangleShape line = RectangleShape(Vector2f(1, (lowerBorder - topBorder) * 10));
-		line.setPosition(Vector2f(x, (topBorder + 1) * 10));
-		line.setFillColor(Color(0, 0, 0, 10));
+		RectangleShape line = RectangleShape(Vector2f(1, (lowerBorder - topBorder) * step));
+		line.setPosition(Vector2f(x, (topBorder + 1) * step));
+		line.setFillColor(Color(0, 0, 0, step));
 		lines.push_back(line);
 	}
 }
@@ -235,6 +255,7 @@ void init()
 		running.rotate();
 	preview.clearGraphic();
 	preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
+	moveInterval = Time(milliseconds(baseMoveInterval));
 	//test();
 }
 
@@ -286,7 +307,7 @@ void eliminate()
 					{
 						if (mainRectGrid[x][j])
 						{
-							mainRectGrid[x][j]->setPosition(Vector2f(x * 10.0f + padding, (j + 1) * 10.0f));
+							mainRectGrid[x][j]->setPosition(Vector2f(x * step + padding, (j + 1) * step));
 							mainRectGrid[x][j + 1] = mainRectGrid[x][j];
 							mainRectGrid[x][j] = NULL;
 						}
@@ -297,9 +318,13 @@ void eliminate()
 			}
 		}
 	}
-	score += rowsEliminated * (rowsEliminated + 1) / 2;
-	txtScore.setString(to_string(score));
-	moveInterval = Time(milliseconds(baseMoveInterval * 1 / (1 + score)));
+	if (rowsEliminated)
+	{
+		score += rowsEliminated * (rowsEliminated + 1) / 2;
+		txtScore.setString(to_string(score * 100));
+		double newInterval = baseMoveInterval / (1 + log10(score + 1));
+		moveInterval = Time(milliseconds(newInterval));
+	}
 }
 
 void test()
@@ -321,7 +346,7 @@ void gameover()
 RectangleShape* drawSquare(int x, int y, Color color)
 {
 	RectangleShape* sq = new RectangleShape(Vector2f(step, step));
-	sq->setPosition(x * 10.0f + padding, y * 10.0f);
+	sq->setPosition(x * step + padding, y * step);
 	sq->setFillColor(color);
 	sq->setOutlineColor(Color::Black);
 	sq->setOutlineThickness(1.0);
