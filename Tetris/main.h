@@ -38,4 +38,5 @@ void gameover();
 sf::RectangleShape* drawSquare(int x, int y, sf::Color color);
 void init();
 bool search(int x, char grid[5]);
+void drawLines();
 

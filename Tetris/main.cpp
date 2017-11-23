@@ -3,6 +3,7 @@
 #include <random>
 #include <unordered_map>
 #include <math.h>
+#include <vector>
 
 using namespace sf;
 using namespace std;
@@ -19,13 +20,14 @@ Clock moveClock, keyClock, rotateClock;
 unordered_set<RectangleShape*> rects;
 RectangleShape* mainRectGrid[28][57];
 int_fast32_t globalGrid[57];
+vector<RectangleShape> lines;
 unsigned long score = 0;
 Text txtScore;
 
 //game control
 int gameStatus = 0;   //waiting to start -- 0, game on -- 1, game over -- 2 					   		
 Point refreshPoint(12, 6);
-Point previewPoint(20, 1);
+Point previewPoint(20, 0);
 Block preview = Block();
 Block running = Block();
 int direction = 0;
@@ -43,6 +45,7 @@ int WinMain()
 	keyInterval = Time(milliseconds(70));
 	moveInterval = Time(milliseconds(baseMoveInterval));
 	rotateInterval = Time(milliseconds(baseMoveInterval));
+	drawLines();
 
 	//generate powers of 2
 	for (int i = 0; i < 25; i++)
@@ -53,7 +56,7 @@ int WinMain()
 	if (!font.loadFromFile("arial.ttf"))
 		return EXIT_FAILURE;
 	txtScore = Text("Score", font, 20);
-	txtScore.setPosition(Vector2f(step, step));
+	txtScore.setPosition(Vector2f(20, step));
 	txtScore.setFillColor(Color::Black);
 
 	//Border
@@ -111,11 +114,31 @@ int WinMain()
 		window.clear(Color::White);
 		window.draw(border);
 		window.draw(txtScore);
+		for (auto element : lines)
+			window.draw(element);
 		for (auto element : rects)
 			window.draw(*element);
 		window.display();
 	}
 	return 0;
+}
+
+void drawLines()
+{
+	for (int y = 60; y < 570; y += 10)
+	{
+		RectangleShape line = RectangleShape(Vector2f(260, 1));
+		line.setPosition(Vector2f(padding, y));
+		line.setFillColor(Color(20, 20, 20, 20));
+		lines.push_back(line);
+	}
+	for (int x = padding; x < 260 + padding; x += 10)
+	{
+		RectangleShape line = RectangleShape(Vector2f(1, 500));
+		line.setPosition(Vector2f(x, 60));
+		line.setFillColor(Color(20, 20, 20, 20));
+		lines.push_back(line);
+	}
 }
 
 void procKeyPress(const Event& event)
