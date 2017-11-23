@@ -97,7 +97,10 @@ int WinMain()
 		while (window.pollEvent(event))
 		{
 			if (event.type == Event::Closed)
+			{
+				cleanup();
 				window.close();
+			}
 			else if (event.type == Event::KeyPressed)
 				procKeyPress(event);
 			else if (event.type == Event::KeyReleased)
@@ -155,6 +158,12 @@ int WinMain()
 		window.display();
 	}
 	return 0;
+}
+
+void cleanup()
+{
+	for (auto element : rects)
+		delete element;
 }
 
 void drawLines()
@@ -331,6 +340,7 @@ void eliminate()
 	}
 }
 
+//for debug
 void test()
 {
 	for (int x = 0; x < rightBorder; x++)
