@@ -11,6 +11,9 @@ using namespace std;
 const int step = 10;		  // size of each brick
 const int padding = step;
 const int baseMoveInterval = 400;
+const int lowerBorder = 55;
+const int topBorder = 5;
+const int rightBorder = 27;
 Time keyInterval, moveInterval, rotateInterval;
 bool rotating = 0;
 unordered_map<int_fast32_t, int> pow2;
@@ -18,7 +21,7 @@ unordered_map<int_fast32_t, int> pow2;
 
 Clock moveClock, keyClock, rotateClock;
 unordered_set<RectangleShape*> rects;
-RectangleShape* mainRectGrid[28][57];
+RectangleShape* mainRectGrid[28][56];
 int_fast32_t globalGrid[57];
 vector<RectangleShape> lines;
 unsigned long score = 0;
@@ -26,8 +29,8 @@ Text txtScore;
 
 //game control
 int gameStatus = 0;   //waiting to start -- 0, game on -- 1, game over -- 2 					   		
-Point refreshPoint(12, 6);
-Point previewPoint(20, 0);
+Point refreshPoint(rightBorder / 2, topBorder);
+Point previewPoint(rightBorder - 5, 0);
 Block preview = Block();
 Block running = Block();
 int direction = 0;
@@ -35,12 +38,13 @@ int direction = 0;
 //random
 random_device rd;
 mt19937 mrand(rd());
-uniform_int_distribution<int> distShape(0, 4);
+uniform_int_distribution<int> distShape(0, 5);
 uniform_int_distribution<int> distColor(50, 205);
+uniform_int_distribution<int> distRotation(0, 3);
 
 int WinMain()
 {
-	RenderWindow window(VideoMode(280, 570), "Tetris");
+	RenderWindow window(VideoMode((rightBorder + 2) * 10, (lowerBorder + 2) * 10), "Tetris");
 	memset(mainRectGrid, 0, sizeof(mainRectGrid));
 	keyInterval = Time(milliseconds(70));
 	moveInterval = Time(milliseconds(baseMoveInterval));
@@ -60,7 +64,7 @@ int WinMain()
 	txtScore.setFillColor(Color::Black);
 
 	//Border
-	RectangleShape border(Vector2f(260, 500));
+	RectangleShape border(Vector2f(rightBorder * 10, (lowerBorder - topBorder) * 10));
 	border.setFillColor(Color::Transparent);
 	border.setPosition(Vector2f(padding, 60));
 	border.setOutlineColor(Color::Black);
@@ -88,6 +92,9 @@ int WinMain()
 				{
 					eliminate();
 					running.set(preview.foreColor, preview.type, refreshPoint);
+					int rots = distRotation(mrand);
+					for (int i = 0; i < rots; i++)
+						running.rotate();
 					preview.clearGraphic();
 					preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
 				}
@@ -100,6 +107,9 @@ int WinMain()
 				{
 					eliminate();
 					running.set(preview.foreColor, preview.type, refreshPoint);
+					int rots = distRotation(mrand);
+					for (int i = 0; i < rots; i++)
+						running.rotate();
 					preview.clearGraphic();
 					preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
 				}
@@ -125,18 +135,18 @@ int WinMain()
 
 void drawLines()
 {
-	for (int y = 60; y < 570; y += 10)
+	for (int y = (topBorder + 1) * 10; y < (lowerBorder + 1) * 10; y += 10)
 	{
-		RectangleShape line = RectangleShape(Vector2f(260, 1));
+		RectangleShape line = RectangleShape(Vector2f(rightBorder * 10, 1));
 		line.setPosition(Vector2f(padding, y));
-		line.setFillColor(Color(20, 20, 20, 20));
+		line.setFillColor(Color(0, 0, 0, 10));
 		lines.push_back(line);
 	}
-	for (int x = padding; x < 260 + padding; x += 10)
+	for (int x = padding; x < rightBorder * 10 + padding; x += 10)
 	{
-		RectangleShape line = RectangleShape(Vector2f(1, 500));
-		line.setPosition(Vector2f(x, 60));
-		line.setFillColor(Color(20, 20, 20, 20));
+		RectangleShape line = RectangleShape(Vector2f(1, (lowerBorder - topBorder) * 10));
+		line.setPosition(Vector2f(x, (topBorder + 1) * 10));
+		line.setFillColor(Color(0, 0, 0, 10));
 		lines.push_back(line);
 	}
 }
@@ -210,7 +220,9 @@ void procKeyUp(const Event& event)
 void init()
 {
 	direction = 0;
+	rotating = 0;
 	gameStatus = 1;
+	memset(globalGrid, 0, sizeof(globalGrid));
 	for (auto element : rects)
 		delete element;
 	rects.clear();
@@ -218,8 +230,12 @@ void init()
 	score = 0;
 	txtScore.setString("0");
 	running.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), refreshPoint);
+	int rots = distRotation(mrand);
+	for (int i = 0; i < rots; i++)
+		running.rotate();
 	preview.clearGraphic();
 	preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
+	//test();
 }
 
 void eliminate()
@@ -227,62 +243,74 @@ void eliminate()
 	running.projection();
 	int rowsEliminated = 0;
 	bool found = 0;
-	int first = 0, last = 0;
-	int32_t fullRow = (1 << 25) - 1;
-	for (int i = 56; i >= 12 && globalGrid[i]; i--)
+	int high = 0, low;
+	int_fast32_t fullRow = (1 << rightBorder) - 1;
+	for (low = lowerBorder; low >= topBorder && globalGrid[low]; low--)
 	{
-		if (!first && globalGrid[i] == fullRow)
-			first = i;
-		if (!last && globalGrid[i] == 0)
-			last = i;
+		if (high < low && fullRow == globalGrid[low])
+			high = low;
 	}
-	if (first)
+	if (high)
 		found = 1;
 	else
 		return;
 	while (found)
 	{
 		found = 0;
-		for (int i = first; i >= last; i--)
+		for (int i = high; i >= low; i--)
 			if (globalGrid[i] == fullRow)
 			{
 				found = 1;
 				globalGrid[i] = 0;
 				rowsEliminated++;
-				for (int x = 0; x < 25; x++)
+				for (int x = 0; x <= rightBorder; x++)
 				{
 					rects.erase(mainRectGrid[x][i]);
 					delete mainRectGrid[x][i];
 					mainRectGrid[x][i] = NULL;
 				}
 			}
-		for (int i = first; i >= last; i--)
+		for (int i = high; i >= low; i--)
 		{
 			if (globalGrid[i] == 0)
 			{
-				int j = i;
-				while (globalGrid[j] == 0)
+				int j = i - 1;
+				while (j >= low && globalGrid[j] == 0)
 					j--;
-				while (j < 57 && (globalGrid[j] & globalGrid[j - 1]) == 0)
+				while (j < lowerBorder && globalGrid[j] && (globalGrid[j] & globalGrid[j + 1]) == 0)
 				{
-					globalGrid[j - 1] = globalGrid[j] & globalGrid[j - 1];
+					globalGrid[j + 1] = globalGrid[j] | globalGrid[j + 1];
 					globalGrid[j] = 0;
-					j++;
 					found = 1;
-					for (int x = 0; x < 25; x++)
+					for (int x = 0; x <= rightBorder; x++)
 					{
-						mainRectGrid[x][j]->setPosition(Vector2f(x * 10.0f, (j - 1) * 10.0f));
-						mainRectGrid[x][j - 1] = mainRectGrid[x][j];
-						mainRectGrid[x][j] = NULL;
+						if (mainRectGrid[x][j])
+						{
+							mainRectGrid[x][j]->setPosition(Vector2f(x * 10.0f + padding, (j + 1) * 10.0f));
+							mainRectGrid[x][j + 1] = mainRectGrid[x][j];
+							mainRectGrid[x][j] = NULL;
+						}
 					}
+					j++;
 				}
 				i = j;
 			}
 		}
 	}
-	score += (1 << (rowsEliminated - 1)) * 100;
+	score += rowsEliminated * (rowsEliminated + 1) / 2;
 	txtScore.setString(to_string(score));
-	moveInterval = Time(milliseconds((double)baseMoveInterval / log2(score)));
+	moveInterval = Time(milliseconds(baseMoveInterval * 1 / (1 + score)));
+}
+
+void test()
+{
+	for (int x = 0; x < rightBorder; x++)
+	{
+		RectangleShape* sq = drawSquare(x, lowerBorder, Color::Black);
+		rects.insert(sq);
+		mainRectGrid[x][lowerBorder] = sq;
+	}
+	globalGrid[lowerBorder] = (1 << rightBorder) - 1;
 }
 
 void gameover()
@@ -293,7 +321,7 @@ void gameover()
 RectangleShape* drawSquare(int x, int y, Color color)
 {
 	RectangleShape* sq = new RectangleShape(Vector2f(step, step));
-	sq->setPosition(x * 10.0f, y * 10.0f);
+	sq->setPosition(x * 10.0f + padding, y * 10.0f);
 	sq->setFillColor(color);
 	sq->setOutlineColor(Color::Black);
 	sq->setOutlineThickness(1.0);
@@ -301,7 +329,6 @@ RectangleShape* drawSquare(int x, int y, Color color)
 }
 
 // Class functions
-
 Point::Point(int x0, int y0)
 {
 	x = x0;
@@ -344,20 +371,28 @@ void Block::projection()
 	int_fast32_t shiftLine;
 	for (int y = 0; y < 5; y++)
 	{
-		shiftLine = (int_fast32_t)grid[y] << position.x;
-		globalGrid[y + position.y] |= shiftLine;
+		if (grid[y])
+		{
+			if (position.x >= 0)
+				shiftLine = (int_fast32_t)grid[y] << position.x;
+			else
+				shiftLine = (int_fast32_t)grid[y] >> (-position.x);
+			globalGrid[y + position.y] |= shiftLine;
+		}
 	}
 }
 
 bool Block::collision(Point position, char datagrid[5])
 {
-	for (int i = 4; i >= 0; i--)
-		if (datagrid[i] && position.y + i >= 56)
-			return 1;
+	if (position.y + bot > lowerBorder)
+		return 1;
 	int_fast32_t shiftLine;
 	for (int y = 0; y < 5; y++)
 	{
-		shiftLine = (int_fast32_t)datagrid[y] << position.x;
+		if (position.x >= 0)
+			shiftLine = (int_fast32_t)grid[y] << position.x;
+		else
+			shiftLine = (int_fast32_t)grid[y] >> (-position.x);
 		if (shiftLine & globalGrid[y + position.y])
 			return 1;
 	}
@@ -393,6 +428,11 @@ void Block::set(sf::Color fColor, int tpe, const Point& pos)
 		grid[2] = 0b1100;
 		grid[3] = 0b1000;
 		break;
+	case 5:	   //Z
+		grid[1] = 0b1000;
+		grid[2] = 0b1100;
+		grid[3] = 0b100;
+		break;
 	}
 	if (collision(position, grid))
 	{
@@ -420,7 +460,7 @@ void Block::rotate()
 		}
 	int nleft, nright, nbot;
 	findBorder(&nleft, &nright, &nbot, newGrid);
-	if (position.x + nleft < 0 || position.x + nright > 26 || position.y + nbot > 56)
+	if (position.x + nleft < 0 || position.x + nright >= rightBorder || position.y + nbot > lowerBorder)
 		return;
 	if (collision(position, newGrid))
 		return;
@@ -454,20 +494,20 @@ bool Block::move(int direction)
 	}
 	int newX = position.x + dx;
 	int newY = position.y + dy;
-	if (newX + left > 0 && newX + right < 27 && newY + bot < 57)
+	if (collision(Point(newX, newY), grid))
+		if (direction == 2)
+			return 0;
+		else
+			return 1;
+	if (newX + left >= 0 && newX + right < rightBorder && newY + bot <= lowerBorder)
 	{
-		if (collision(Point(newX, newY), grid))
-			if (direction == 2)
-				return 0;
-			else
-				return 1;
 		clearGraphic();
 		position.x = newX;
 		position.y = newY;
 		draw();
 	}
 	else
-		if (newY + bot == 57)
+		if (newY + bot == lowerBorder + 1)
 			return 0;
 	return 1;
 }
