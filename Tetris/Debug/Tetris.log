@@ -1,0 +1,3 @@
+﻿  main.cpp
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(4): warning C4007: 'WinMain': must be '__stdcall'
+sfml-graphics-d.lib(sfml-graphics-d-2.dll) : fatal error LNK1112: module machine type 'x64' conflicts with target machine type 'x86'
