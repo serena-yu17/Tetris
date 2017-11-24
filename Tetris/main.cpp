@@ -1,12 +1,12 @@
-#include "main.h"
-#include "font.h"
-#include "icon.h"
-
 #include <string>
 #include <random>
 #include <unordered_map>
 #include <math.h>
 #include <vector>
+
+#include "main.h"
+#include "font.h"
+#include "icon.h"
 
 using namespace sf;
 using namespace std;
