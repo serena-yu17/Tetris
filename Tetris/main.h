@@ -28,7 +28,7 @@ public:
 	void draw();
 	void clearGraphic();
 	bool collision(Point position, char datagrid[5]);
-	bool move(int direction);	
+	bool move(int direction);
 };
 
 void procKeyPress(const sf::Event& event);
@@ -40,6 +40,7 @@ void init();
 bool search(int x, char grid[5]);
 void drawLines();
 void test();	// for debug
+void finalize();
 
 //constants that define game board size and game speed
 const int step = 15;		  // size of each brick

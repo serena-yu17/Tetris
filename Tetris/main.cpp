@@ -85,15 +85,7 @@ int WinMain()
 			if (moveClock.getElapsedTime() > moveInterval)
 			{
 				if (!running.move(2))	   //if collides, check if there are rows that can be eliminated
-				{
-					eliminate();
-					running.set(preview.foreColor, preview.type, refreshPoint);
-					int rotations = distRotation(mrand);		//set the block at a random rotation
-					for (int i = 0; i < rotations; i++)
-						running.rotate();
-					preview.clearGraphic();
-					preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
-				}
+					finalize();
 				moveClock.restart();
 			}
 
@@ -101,15 +93,7 @@ int WinMain()
 			if (direction && keyClock.getElapsedTime() > keyInterval) {
 
 				if (!running.move(direction))			//if collides, check if there are rows that can be eliminated
-				{
-					eliminate();
-					running.set(preview.foreColor, preview.type, refreshPoint);
-					int rotations = distRotation(mrand);	   //set the block at a random rotation
-					for (int i = 0; i < rotations; i++)
-						running.rotate();
-					preview.clearGraphic();
-					preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
-				}
+					finalize();
 				keyClock.restart();
 			}
 
@@ -134,6 +118,20 @@ int WinMain()
 		window.display();
 	}
 	return 0;
+}
+
+// processes the block when it collides or reaches the bottom
+void finalize()
+{
+	rotating = 0;
+	direction = 0;
+	eliminate();
+	running.set(preview.foreColor, preview.type, refreshPoint);
+	int rotations = distRotation(mrand);		//set the block at a random rotation
+	for (int i = 0; i < rotations; i++)
+		running.rotate();
+	preview.clearGraphic();
+	preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
 }
 
 //generates the static grid lines
