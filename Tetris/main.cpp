@@ -97,10 +97,7 @@ int WinMain()
 		while (window.pollEvent(event))
 		{
 			if (event.type == Event::Closed)
-			{
-				cleanup();
 				window.close();
-			}
 			else if (event.type == Event::KeyPressed)
 				procKeyPress(event);
 			else if (event.type == Event::KeyReleased)
@@ -144,7 +141,7 @@ int WinMain()
 				rotateClock.restart();
 			}
 		}
-		window.clear(Color::White);
+		window.clear(Color(240,240,240, 255));
 		window.draw(border);
 		window.draw(txtScore);
 		for (auto element : lines)
@@ -160,26 +157,20 @@ int WinMain()
 	return 0;
 }
 
-void cleanup()
-{
-	for (auto element : rects)
-		delete element;
-}
-
 void drawLines()
 {
 	for (int y = (topBorder + 1) * step; y < (lowerBorder + 1) * step; y += step)
 	{
 		RectangleShape line = RectangleShape(Vector2f(rightBorder * step, 1));
 		line.setPosition(Vector2f(padding, y));
-		line.setFillColor(Color(0, 0, 0, step));
+		line.setFillColor(Color(255, 255, 255, 255));
 		lines.push_back(line);
 	}
 	for (int x = padding; x < rightBorder * step + padding; x += step)
 	{
 		RectangleShape line = RectangleShape(Vector2f(1, (lowerBorder - topBorder) * step));
 		line.setPosition(Vector2f(x, (topBorder + 1) * step));
-		line.setFillColor(Color(0, 0, 0, step));
+		line.setFillColor(Color(255, 255, 255, 255));
 		lines.push_back(line);
 	}
 }
@@ -335,7 +326,7 @@ void eliminate()
 	{
 		score += rowsEliminated * (rowsEliminated + 1) / 2;
 		txtScore.setString(to_string(score * 100));
-		double newInterval = baseMoveInterval / (1 + log10(score + 1));
+		int newInterval = baseMoveInterval / (1 + log10(score + 1));
 		moveInterval = Time(milliseconds(newInterval));
 	}
 }
@@ -359,8 +350,8 @@ void gameover()
 
 RectangleShape* drawSquare(int x, int y, Color color)
 {
-	RectangleShape* sq = new RectangleShape(Vector2f(step, step));
-	sq->setPosition(x * step + padding, y * step);
+	RectangleShape* sq = new RectangleShape(Vector2f(step - 1, step - 1));
+	sq->setPosition(x * step + padding - 1, y * step - 1);
 	sq->setFillColor(color);
 	sq->setOutlineColor(Color::Black);
 	sq->setOutlineThickness(1.0);

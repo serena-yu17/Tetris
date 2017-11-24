@@ -1,5 +1,16 @@
-﻿  Generating code
-  34 of 709 functions ( 4.8%) were compiled, the rest were copied from previous compilation.
+﻿  main.cpp
+c:\onedrive\projects\windows\tetris\tetris\font.h(7604): warning C4838: conversion from 'int' to 'const char' requires a narrowing conversion
+c:\onedrive\projects\windows\tetris\tetris\font.h(7604): warning C4309: 'initializing': truncation of constant value
+main.cpp(73): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(89): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(165): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(172): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(314): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(329): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+main.cpp(354): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Generating code
+  35 of 708 functions ( 4.9%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
