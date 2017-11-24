@@ -1,0 +1,14 @@
+﻿  icon.h
+  main.cpp
+c:\onedrive\projects\windows\tetris\tetris\font.h(7604): warning C4838: conversion from 'int' to 'const char' requires a narrowing conversion
+c:\onedrive\projects\windows\tetris\tetris\font.h(7604): warning C4309: 'initializing': truncation of constant value
+main.cpp(55): warning C4007: 'WinMain': must be '__stdcall'
+main.cpp(73): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(89): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(165): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+main.cpp(172): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(314): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+main.cpp(329): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+main.cpp(354): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+sfml-system-s.lib(Time.cpp.obj) : fatal error LNK1112: module machine type 'x64' conflicts with target machine type 'x86'

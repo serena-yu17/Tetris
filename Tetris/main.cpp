@@ -11,72 +11,46 @@
 using namespace sf;
 using namespace std;
 
-const int step = 15;		  // size of each brick
-const int padding = step;	  //left padding distance
-const int baseMoveInterval = 120;
-const int lowerBorder = 35;
-const int topBorder = 5;
-const int rightBorder = 18;
-Time keyInterval, moveInterval, rotateInterval;
-bool rotating = 0;
-unordered_map<int_fast32_t, int> pow2;
-
-//Timers
-Clock moveClock, keyClock, rotateClock;
-unordered_set<RectangleShape*> rects;
-
-//grids
-RectangleShape* mainRectGrid[28][56];
-int_fast32_t globalGrid[56];
-vector<RectangleShape> lines;
-
-//Score	board
-unsigned long score = 0;
-Text txtScore;
-Text txtGameOver;
-Text txtInit;
-
-//game status
-int gameStatus = 0;   //waiting to start -- 0, game on -- 1, game over -- 2 					   		
-Point refreshPoint(rightBorder / 2 - 3, topBorder);
-Point previewPoint(rightBorder - 5, 0);
-Block preview = Block();
-Block running = Block();
-int direction = 0;
-
 //random
-random_device rd;
-mt19937 mrand(rd());
-uniform_int_distribution<int> distShape(0, 5);
-uniform_int_distribution<int> distColor(50, 205);
-uniform_int_distribution<int> distRotation(0, 3);
+std::random_device rd;
+std::mt19937 mrand(rd());
+std::uniform_int_distribution<int> distShape(0, 5);				//random shapes -- 6 basic shapes to start with
+std::uniform_int_distribution<int> distColor(50, 205);			//random color space
+std::uniform_int_distribution<int> distRotation(0, 3);			//random rotation status
 
 int WinMain()
 {
 	RenderWindow window(VideoMode((rightBorder + 2) * step, (lowerBorder + 2) * step), "Tetris", Style::Close);
 	window.setIcon(icon.width, icon.height, icon.pixel_data);
+	window.setVerticalSyncEnabled(1);
+
 	memset(mainRectGrid, 0, sizeof(mainRectGrid));
-	keyInterval = Time(milliseconds(50));
-	moveInterval = Time(milliseconds(120));
-	rotateInterval = Time(milliseconds(200));
+
+	keyInterval = Time(milliseconds(baseMoveInterval / 2.5));			//Interval between key-forces moves
+	moveInterval = Time(milliseconds(baseMoveInterval));				//Inverval between the regular descent
+	rotateInterval = Time(milliseconds(baseMoveInterval * 1.5));		//Interval between rotations
+
+	//prepare grid lines
 	drawLines();
 
-	//generate powers of 2
-	for (int i = 0; i < 25; i++)
-		pow2[1 << i] = i;
-
-	//Text
+	//Text font is supplied in font.h
 	Font font;
 	if (!font.loadFromMemory(fontChar, fontChar_size))
 		return EXIT_FAILURE;
+
+	//score board
 	txtScore = Text("Score", font, 20);
 	txtScore.setPosition(Vector2f(20, step));
 	txtScore.setFillColor(Color::Black);
+
+	//game over text
 	txtGameOver = Text("Game Over\n\nRestart: Esc", font, 25);
 	txtGameOver.setPosition(Vector2f(70, (lowerBorder - topBorder) / 2 * step));
 	txtGameOver.setFillColor(Color::Red);
 	txtGameOver.setOutlineColor(Color::Yellow);
 	txtGameOver.setOutlineThickness(10);
+
+	//Initial text prompt
 	txtInit = Text("Press arrow keys\n        to start", font, 25);
 	txtInit.setPosition(Vector2f(40, (lowerBorder - topBorder) / 2 * step));
 	txtInit.setFillColor(Color::Black);
@@ -97,71 +71,77 @@ int WinMain()
 		while (window.pollEvent(event))
 		{
 			if (event.type == Event::Closed)
-				window.close();
+				window.close();			//SFML clears the rectangles automatically, so no need to delete
 			else if (event.type == Event::KeyPressed)
-				procKeyPress(event);
+				procKeyPress(event);	// key events are split into key-down and key-up events to keep a smooth control
 			else if (event.type == Event::KeyReleased)
 				procKeyUp(event);
 		}
-		//regular move
+
+		//when game is on, process the game loop
 		if (gameStatus == 1)
 		{
+			// the regular descent of blocks
 			if (moveClock.getElapsedTime() > moveInterval)
 			{
-				if (!running.move(2))	   //if collides
+				if (!running.move(2))	   //if collides, check if there are rows that can be eliminated
 				{
 					eliminate();
 					running.set(preview.foreColor, preview.type, refreshPoint);
-					int rots = distRotation(mrand);
-					for (int i = 0; i < rots; i++)
+					int rotations = distRotation(mrand);		//set the block at a random rotation
+					for (int i = 0; i < rotations; i++)
 						running.rotate();
 					preview.clearGraphic();
 					preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
 				}
 				moveClock.restart();
 			}
-			//forced move
+
+			//forced move upon arrow keys
 			if (direction && keyClock.getElapsedTime() > keyInterval) {
 
-				if (!running.move(direction))			//if collides
+				if (!running.move(direction))			//if collides, check if there are rows that can be eliminated
 				{
 					eliminate();
 					running.set(preview.foreColor, preview.type, refreshPoint);
-					int rots = distRotation(mrand);
-					for (int i = 0; i < rots; i++)
+					int rotations = distRotation(mrand);	   //set the block at a random rotation
+					for (int i = 0; i < rotations; i++)
 						running.rotate();
 					preview.clearGraphic();
 					preview.set(Color(distColor(mrand), distColor(mrand), distColor(mrand), 255), distShape(mrand), previewPoint);
 				}
 				keyClock.restart();
 			}
+
+			//rotation upon up key
 			if (rotating && rotateClock.getElapsedTime() > rotateInterval)
 			{
 				running.rotate();
 				rotateClock.restart();
 			}
 		}
-		window.clear(Color(240,240,240, 255));
+		window.clear(Color(240, 240, 240, 255));			  //background color
 		window.draw(border);
 		window.draw(txtScore);
-		for (auto element : lines)
+		for (auto element : lines)							  //draw grid lines
 			window.draw(element);
-		for (auto element : rects)
+		for (auto element : rects)							  //draw the tetris blocks
 			window.draw(*element);
-		if (gameStatus == 3)
+		if (gameStatus == 3)								  //if game over, display the "game over" text
 			window.draw(txtGameOver);
-		else if (gameStatus == 0)
+		else if (gameStatus == 0)							  //If waiting to start, display the initial text
 			window.draw(txtInit);
 		window.display();
 	}
 	return 0;
 }
 
+//generates the static grid lines
 void drawLines()
 {
 	for (int y = (topBorder + 1) * step; y < (lowerBorder + 1) * step; y += step)
 	{
-		RectangleShape line = RectangleShape(Vector2f(rightBorder * step, 1));
+		RectangleShape line = RectangleShape(Vector2f(rightBorder * step, 1));		  //rectangles of height 1 are essentially "lines"
 		line.setPosition(Vector2f(padding, y));
 		line.setFillColor(Color(255, 255, 255, 255));
 		lines.push_back(line);
@@ -175,6 +155,7 @@ void drawLines()
 	}
 }
 
+//key movement handlers
 void procKeyPress(const Event& event)
 {
 	switch (event.key.code)
@@ -241,6 +222,7 @@ void procKeyUp(const Event& event)
 	}
 }
 
+//game starter, clears up everything for a fresh new game
 void init()
 {
 	direction = 0;
@@ -263,25 +245,28 @@ void init()
 	//test();
 }
 
+//eliminate full rows
 void eliminate()
 {
-	running.projection();
-	int rowsEliminated = 0;
+	running.projection();					  //project the local grid of the block onto the global grid. Then the local grid will be reused by set()
+	int rowsEliminated = 0;					  //counter for rows eliminated
 	bool found = 0;
 	int high = 0, low;
-	int_fast32_t fullRow = (1 << rightBorder) - 1;
+	int_fast32_t fullRow = (1 << rightBorder) - 1;		   // a full row is filled by 1
 	for (low = lowerBorder; low >= topBorder && globalGrid[low]; low--)
 	{
-		if (high < low && fullRow == globalGrid[low])
+		if (high < low && fullRow == globalGrid[low])		 //high: the first full row, low: the last row that is being used before it is blank
 			high = low;
 	}
-	if (high)
+	if (high)								   //if no rows are found, leave
 		found = 1;
 	else
 		return;
 	while (found)
 	{
 		found = 0;
+
+		//eliminate full rows
 		for (int i = high; i >= low; i--)
 			if (globalGrid[i] == fullRow)
 			{
@@ -295,6 +280,8 @@ void eliminate()
 					mainRectGrid[x][i] = NULL;
 				}
 			}
+
+		//move the above rows down
 		for (int i = high; i >= low; i--)
 		{
 			if (globalGrid[i] == 0)
@@ -321,11 +308,16 @@ void eliminate()
 				i = j;
 			}
 		}
+		//loop to eliminate again until no full row can be found
 	}
+
+	//add to the score
 	if (rowsEliminated)
 	{
 		score += rowsEliminated * (rowsEliminated + 1) / 2;
 		txtScore.setString(to_string(score * 100));
+
+		//increase game speed based on the score
 		int newInterval = baseMoveInterval / (1 + log10(score + 1));
 		moveInterval = Time(milliseconds(newInterval));
 	}
@@ -348,6 +340,7 @@ void gameover()
 	gameStatus = 3;
 }
 
+//generates the rectangle
 RectangleShape* drawSquare(int x, int y, Color color)
 {
 	RectangleShape* sq = new RectangleShape(Vector2f(step - 1, step - 1));
@@ -371,6 +364,7 @@ Point::Point(const Point& other)
 	y = other.y;
 }
 
+//adds the current block to the graphics grid
 void Block::draw()
 {
 	for (int y = 0; y < 5; y++)
@@ -383,6 +377,7 @@ void Block::draw()
 			}
 }
 
+//clears the current block from the graphics grid
 void Block::clearGraphic()
 {
 	for (int y = 0; y < 5; y++)
@@ -395,6 +390,7 @@ void Block::clearGraphic()
 			}
 }
 
+//merges the current block into the global grid
 void Block::projection()
 {
 	// Project the local grid to the global grid
@@ -412,6 +408,7 @@ void Block::projection()
 	}
 }
 
+//collision test
 bool Block::collision(Point position, char datagrid[5])
 {
 	if (position.y + bot > lowerBorder)
@@ -429,6 +426,7 @@ bool Block::collision(Point position, char datagrid[5])
 	return 0;
 }
 
+//set new values and positions for the block
 void Block::set(sf::Color fColor, int tpe, const Point& pos)
 {
 	foreColor = fColor;
@@ -473,6 +471,7 @@ void Block::set(sf::Color fColor, int tpe, const Point& pos)
 	draw();
 }
 
+//rotate the current block by clockwise 90 deg each time
 void Block::rotate()
 {
 	if (type == 1)
@@ -542,6 +541,7 @@ bool Block::move(int direction)
 	return 1;
 }
 
+//find the furthest suqares of the current block. Used for movement control to make sure the block remains within the borders
 void Block::findBorder(int* left, int* right, int* bot, char grid[5])
 {
 	*bot = 4;

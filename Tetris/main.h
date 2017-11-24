@@ -40,5 +40,38 @@ void init();
 bool search(int x, char grid[5]);
 void drawLines();
 void test();	// for debug
-void cleanup();
+
+//constants that define game board size and game speed
+const int step = 15;		  // size of each brick
+const int padding = step;	  //left padding distance
+const int baseMoveInterval = 120;
+const int lowerBorder = 35;
+const int topBorder = 5;
+const int rightBorder = 18;
+
+//Timers
+sf::Time keyInterval, moveInterval, rotateInterval;
+sf::Clock moveClock, keyClock, rotateClock;
+
+//grids
+std::unordered_set<sf::RectangleShape*> rects;		// hash set of Rectangles for efficient random access when drawing the window
+sf::RectangleShape* mainRectGrid[28][56];		// this array manages the coordinates of rectangles
+int_fast32_t globalGrid[56];				// manages the coordinates of rectangles in a bit set, for collision check
+std::vector<sf::RectangleShape> lines;				// background grid lines
+
+											//Score	board
+unsigned long score = 0;
+sf::Text txtScore;
+sf::Text txtGameOver;
+sf::Text txtInit;
+
+//game status
+int gameStatus = 0;   //waiting to start -- 0, game on -- 1, game over -- 2 					   		
+Point refreshPoint(rightBorder / 2 - 3, topBorder);
+Point previewPoint(rightBorder - 5, 0);
+Block preview = Block();
+Block running = Block();
+int direction = 0;
+bool rotating = 0;
+
 
