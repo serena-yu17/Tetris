@@ -107,9 +107,9 @@ int WinMain()
 		window.clear(Color(240, 240, 240, 255));			  //background color
 		window.draw(border);
 		window.draw(txtScore);
-		for (auto element : lines)							  //draw grid lines
+		for (auto& element : lines)							  //draw grid lines
 			window.draw(element);
-		for (auto element : rects)							  //draw the tetris blocks
+		for (auto& element : rects)							  //draw the tetris blocks
 			window.draw(*element);
 		if (gameStatus == 3)								  //if game over, display the "game over" text
 			window.draw(txtGameOver);
@@ -227,7 +227,7 @@ void init()
 	rotating = 0;
 	gameStatus = 1;
 	memset(globalGrid, 0, sizeof(globalGrid));
-	for (auto element : rects)
+	for (auto& element : rects)
 		delete element;
 	rects.clear();
 	memset(mainRectGrid, 0, sizeof(mainRectGrid));
