@@ -3,32 +3,37 @@
 #include <utility>
 #include <unordered_set>
 
-struct Point
+typedef char byte;
+
+class Point
 {
+public:
 	int x, y;
 	Point(int x0, int y0);
-	Point(const Point& other);
+	Point(Point const& other);
+	Point(Point&& other);
 	Point() {}
+	void operator=(Point&& other);
 };
 
 class Block
 {
 private:
 	Point position;
-	char grid[5] = { 0,0,0,0,0 };
-	int left, right, bot, top;
-	void findBorder(int* left, int* right, int* bot, int* top, char grid[5]);
+	byte grid[5] = { 0,0,0,0,0 };
+	byte borders[4];
+	void findBorder(byte borders[4], byte grid[5]);
 public:
 	int type;
 	sf::Color foreColor;
 	Block() {}
-	void set(sf::Color fColor, int type, const Point& position);
+	void set(sf::Color& fColor, int type, Point& position);
 	void rotate();
 	void projection();
 	void draw();
 	void clearGraphic();
-	bool collision(Point position, char datagrid[5]);
-	bool move(int direction);
+	bool collision(Point const& position, byte const datagrid[5], byte const borders[4]);
+	bool move(int direction);	
 };
 
 void procKeyPress(const sf::Event& event);
@@ -37,7 +42,7 @@ void eliminate();
 void gameover();
 sf::RectangleShape* drawSquare(int x, int y, sf::Color color);
 void init();
-bool search(int x, char grid[5]);
+bool search(byte x, byte grid[5]);
 void drawLines();
 void test();	// for debug
 void finalize();

@@ -342,7 +342,7 @@ void gameover()
 RectangleShape* drawSquare(int x, int y, Color color)
 {
 	RectangleShape* sq = new RectangleShape(Vector2f(step - 1, step - 1));
-	sq->setPosition(x * step + padding - 1, y * step - 1);
+	sq->setPosition(x * step + padding, y * step);
 	sq->setFillColor(color);
 	sq->setOutlineColor(Color::Black);
 	sq->setOutlineThickness(1.0);
@@ -356,7 +356,19 @@ Point::Point(int x0, int y0)
 	y = y0;
 }
 
-Point::Point(const Point& other)
+Point::Point(Point const& other)
+{
+	x = other.x;
+	y = other.y;
+}
+
+Point::Point(Point&& other)
+{
+	x = other.x;
+	y = other.y;
+}
+
+void Point::operator=(Point&& other)
 {
 	x = other.x;
 	y = other.y;
@@ -407,17 +419,17 @@ void Block::projection()
 }
 
 //collision test
-bool Block::collision(Point position, char datagrid[5])
+bool Block::collision(Point const& position, byte const datagrid[5], byte const borders[4])
 {
-	if (position.y + bot > lowerBorder)
+	if (position.y + borders[1] > lowerBorder)
 		return 1;
 	int_fast32_t shiftLine;
 	for (int y = 0; y < 5; y++)
 	{
 		if (position.x >= 0)
-			shiftLine = (int_fast32_t)grid[y] << position.x;
+			shiftLine = (int_fast32_t)datagrid[y] << position.x;
 		else
-			shiftLine = (int_fast32_t)grid[y] >> (-position.x);
+			shiftLine = (int_fast32_t)datagrid[y] >> (-position.x);
 		if (shiftLine & globalGrid[y + position.y])
 			return 1;
 	}
@@ -425,7 +437,7 @@ bool Block::collision(Point position, char datagrid[5])
 }
 
 //set new values and positions for the block
-void Block::set(sf::Color fColor, int tpe, const Point& pos)
+void Block::set(sf::Color& fColor, int tpe, Point& pos)
 {
 	foreColor = fColor;
 	position = Point(pos);
@@ -459,14 +471,14 @@ void Block::set(sf::Color fColor, int tpe, const Point& pos)
 		grid[2] = 0b1100;
 		grid[3] = 0b100;
 		break;
-	}
-	if (collision(position, grid))
+	} 	
+	findBorder(borders, grid);
+	position.y -= borders[0];
+	if (collision(position, grid, borders))
 	{
 		gameover();
 		return;
 	}
-	findBorder(&left, &right, &bot, &top, grid);
-	position.y -= top;
 	draw();
 }
 
@@ -475,7 +487,7 @@ void Block::rotate()
 {
 	if (type == 1)
 		return;
-	char newGrid[5] = { 0,0,0,0,0 };
+	byte newGrid[5] = { 0,0,0,0,0 };
 	for (int y = 0; y < 5; y++)
 		for (int x = 0; x < 5; x++)
 		{
@@ -486,20 +498,19 @@ void Block::rotate()
 				newGrid[newY] |= 1 << newX;
 			}
 		}
-	int newLeft, newRight, newBotton, newTop;
-	findBorder(&newLeft, &newRight, &newBotton, &newTop, newGrid);
-	if (collision(position, newGrid))
+	byte newBorders[4];
+	Point newPosition(position);
+	findBorder(newBorders, newGrid);	
+	if (newPosition.x + newBorders[2] < 0)
+		newPosition.x = -newBorders[2];
+	else if (newPosition.x + newBorders[3] > rightBorder - 1)
+		newPosition.x = rightBorder - newBorders[3] - 1;
+	if (collision(newPosition, newGrid, newBorders))
 		return;
 	clearGraphic();
-	if (position.x + newLeft < 0)
-		position.x = -newLeft;
-	else if (position.x + newRight > rightBorder - 1)
-		position.x = rightBorder - newRight - 1;
-	left = newLeft;
-	right = newRight;
-	bot = newBotton;
-	top = newTop;
-	memcpy(grid, newGrid, 5);
+	memcpy(borders, newBorders, sizeof(borders));
+	position = Point(newPosition);
+	memcpy(grid, newGrid, sizeof(grid));
 	draw();
 }
 
@@ -525,43 +536,41 @@ bool Block::move(int direction)
 	}
 	int newX = position.x + dx;
 	int newY = position.y + dy;
-	if (collision(Point(newX, newY), grid))
+	if (collision(Point(newX, newY), grid, borders))
 		if (direction == 2)
 			return 0;
 		else
 			return 1;
-	if (newX + left >= 0 && newX + right < rightBorder && newY + bot <= lowerBorder)
+	if (newX + borders[2] >= 0 && newX + borders[3] < rightBorder && newY + borders[1] <= lowerBorder)
 	{
 		clearGraphic();
 		position.x = newX;
 		position.y = newY;
 		draw();
 	}
-	else
-		if (newY + bot == lowerBorder + 1)
-			return 0;
+	//else do_nothing;
 	return 1;
 }
 
 //find the furthest suqares of the current block. Used for movement control to make sure the block remains within the borders
-void Block::findBorder(int* left, int* right, int* bot, int* top, char grid[5])
+void Block::findBorder(byte borders[4], byte grid[5])
 {
-	*top = 0;
-	while (grid[*top] == 0)
-		(*top)++;
-	*bot = 4;
-	while (grid[*bot] == 0)
-		(*bot)--;
+	borders[0] = 0;
+	while (grid[borders[0]] == 0)
+		borders[0]++;
+	borders[1] = 4;
+	while (grid[borders[1]] == 0)
+		borders[1]--;
 	bool seeking = 1;
-	*left = 0;
-	while (!search(*left, grid))
-		(*left)++;
-	*right = 4;
-	while (!search(*right, grid))
-		(*right)--;
+	borders[2] = 0;
+	while (!search(borders[2], grid))
+		borders[2]++;
+	borders[3] = 4;
+	while (!search(borders[3], grid))
+		borders[3]--;
 }
 
-bool search(int x, char grid[5])
+bool search(byte x, byte grid[5])
 {
 	for (int y = 0; y < 5; y++)
 		if (grid[y] & (1 << x))

@@ -1,12 +1,14 @@
 ﻿  main.cpp
 c:\onedrive\projects\windows\tetris\tetris\font.h(7604): warning C4838: conversion from 'int' to 'const char' requires a narrowing conversion
 c:\onedrive\projects\windows\tetris\tetris\font.h(7604): warning C4309: 'initializing': truncation of constant value
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(73): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(89): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(165): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(165): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(172): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(314): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(330): warning C4244: 'argument': conversion from 'double' to 'sf::Int32', possible loss of data
-c:\onedrive\projects\windows\tetris\tetris\main.cpp(354): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(29): warning C4244: 'argument': conversion from 'double' to 'sf::Int32', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(31): warning C4244: 'argument': conversion from 'double' to 'sf::Int32', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(43): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(63): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(143): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(143): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(150): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(299): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(319): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\onedrive\projects\windows\tetris\tetris\main.cpp(345): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Tetris.vcxproj -> C:\OneDrive\projects\windows\Tetris\x64\Debug\Tetris.exe
