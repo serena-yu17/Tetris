@@ -16,8 +16,8 @@ class Block
 private:
 	Point position;
 	char grid[5] = { 0,0,0,0,0 };
-	int left, right, bot;
-	void findBorder(int* left, int* right, int* bot, char grid[5]);
+	int left, right, bot, top;
+	void findBorder(int* left, int* right, int* bot, int* top, char grid[5]);
 public:
 	int type;
 	sf::Color foreColor;
@@ -68,8 +68,8 @@ sf::Text txtInit;
 
 //game status
 int gameStatus = 0;   //waiting to start -- 0, game on -- 1, game over -- 2 					   		
-Point refreshPoint(rightBorder / 2 - 3, topBorder);
-Point previewPoint(rightBorder - 5, 0);
+Point refreshPoint(rightBorder / 2 - 3, topBorder + 1);
+Point previewPoint(rightBorder - 5, 1);
 Block preview = Block();
 Block running = Block();
 int direction = 0;

@@ -465,7 +465,8 @@ void Block::set(sf::Color fColor, int tpe, const Point& pos)
 		gameover();
 		return;
 	}
-	findBorder(&left, &right, &bot, grid);
+	findBorder(&left, &right, &bot, &top, grid);
+	position.y -= top;
 	draw();
 }
 
@@ -485,16 +486,19 @@ void Block::rotate()
 				newGrid[newY] |= 1 << newX;
 			}
 		}
-	int nleft, nright, nbot;
-	findBorder(&nleft, &nright, &nbot, newGrid);
-	if (position.x + nleft < 0 || position.x + nright >= rightBorder || position.y + nbot > lowerBorder)
-		return;
+	int newLeft, newRight, newBotton, newTop;
+	findBorder(&newLeft, &newRight, &newBotton, &newTop, newGrid);
 	if (collision(position, newGrid))
 		return;
-	left = nleft;
-	right = nright;
-	bot = nbot;
 	clearGraphic();
+	if (position.x + newLeft < 0)
+		position.x = -newLeft;
+	else if (position.x + newRight > rightBorder - 1)
+		position.x = rightBorder - newRight - 1;
+	left = newLeft;
+	right = newRight;
+	bot = newBotton;
+	top = newTop;
 	memcpy(grid, newGrid, 5);
 	draw();
 }
@@ -540,8 +544,11 @@ bool Block::move(int direction)
 }
 
 //find the furthest suqares of the current block. Used for movement control to make sure the block remains within the borders
-void Block::findBorder(int* left, int* right, int* bot, char grid[5])
+void Block::findBorder(int* left, int* right, int* bot, int* top, char grid[5])
 {
+	*top = 0;
+	while (grid[*top] == 0)
+		(*top)++;
 	*bot = 4;
 	while (grid[*bot] == 0)
 		(*bot)--;
